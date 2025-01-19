@@ -1,4 +1,5 @@
 const { google } = require("googleapis");
+require('dotenv').config();
 
 // SPREADSHEET and SHEET configuration
 const SPREADSHEET_ID = "1BtR0inNvEgDdhorb6sgSx6s3my3MO4RG5QysY28mhGQ";
@@ -22,6 +23,10 @@ const headers = {
     "Authorization": `Bearer ${bearerToken}`,
     "Content-Type": "application/json",
 };
+
+console.log("Google Credentials:", process.env.GOOGLE_CREDENTIALS);
+console.log("Bearer Token:", process.env.BEARER_TOKEN);
+
 
 // Function to get the latest contractor identifier from Encircle
 async function getLatestClaimContractorIdentifier() {

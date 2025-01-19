@@ -135,7 +135,7 @@
           document.getElementById("loading").style.display = "block";
 
           try {
-            const response = await fetch("/api/create-claim", {
+            const response = await fetch("/.netlify/functions/create-claim", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

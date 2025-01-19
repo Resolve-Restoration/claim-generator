@@ -10,8 +10,5 @@ functions = "netlify/functions"
 # command = "hugo"
 # If you're not using a build tool, leave this out
 
-[functions]
-included_files = ["cred.json"]
-
 [[plugins]]
 package = "@netlify/plugin-functions-install-core"
