@@ -1,0 +1,17 @@
+[build]
+# Directory where your static files (HTML, CSS, JS) are located
+publish = "public"
+
+# Directory where your serverless functions are located
+functions = "netlify/functions"
+
+# Command to build your frontend (optional, if you're using a build tool like Hugo or Webpack)
+# For example, if using Hugo, you'd have:
+# command = "hugo"
+# If you're not using a build tool, leave this out
+
+[functions]
+included_files = ["cred.json"]
+
+[[plugins]]
+package = "@netlify/plugin-functions-install-core"
