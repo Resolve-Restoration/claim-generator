@@ -1,14 +1,23 @@
 const { google } = require("googleapis");
 
+// SPREADSHEET and SHEET configuration
 const SPREADSHEET_ID = "1BtR0inNvEgDdhorb6sgSx6s3my3MO4RG5QysY28mhGQ";
-const SHEET_NAME = "Sheet1"; 
+const SHEET_NAME = "Sheet1";
 
-// Retrieve the credentials from the environment variable
-const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
+// Decode base64-encoded credentials
+const decodeBase64 = (encodedString) => {
+    const buff = Buffer.from(encodedString, 'base64');
+    return buff.toString('utf-8');
+};
+
+// Retrieve the Google credentials from the environment variable and decode the base64 string
+const credentials = JSON.parse(decodeBase64(process.env.GOOGLE_CREDENTIALS));
 
 // Encircle API configuration
-const claimsEndpoint = "https://api.encircleapp.com/v1/property_claims"; 
-const bearerToken = JSON.parse(process.env.BEARER_TOKEN); 
+const claimsEndpoint = "https://api.encircleapp.com/v1/property_claims";
+// BEARER_TOKEN is not base64 encoded, so we use it directly
+const bearerToken = process.env.BEARER_TOKEN;
+
 const headers = {
     "Authorization": `Bearer ${bearerToken}`,
     "Content-Type": "application/json",
@@ -37,7 +46,7 @@ async function getLatestClaimContractorIdentifier() {
         const latestClaim = claims[0];
 
         if (!latestClaim.contractor_identifier) {
-            return null; 
+            return null;
         }
 
         return latestClaim.contractor_identifier;
@@ -53,7 +62,7 @@ async function getNextContractorIdentifier() {
         const latestContractorIdentifier = await getLatestClaimContractorIdentifier();
 
         if (latestContractorIdentifier === null) {
-            return "RR00001"; 
+            return "RR00001"; // Start from RR00001 if no previous claim exists
         }
 
         const numericPart = parseInt(latestContractorIdentifier.replace("RR", ""), 10);
