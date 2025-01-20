@@ -24,10 +24,6 @@ const headers = {
     "Content-Type": "application/json",
 };
 
-console.log("Google Credentials:", process.env.GOOGLE_CREDENTIALS);
-console.log("Bearer Token:", process.env.BEARER_TOKEN);
-
-
 // Function to get the latest contractor identifier from Encircle
 async function getLatestClaimContractorIdentifier() {
     try {
@@ -90,7 +86,7 @@ async function appendToGoogleSheet(data) {
 
         const request = {
             spreadsheetId: SPREADSHEET_ID,
-            range: `${SHEET_NAME}!A2:D2`, 
+            range: `${SHEET_NAME}!A2:D2`,
             valueInputOption: "RAW",
             resource: {
                 values: [data],
@@ -109,26 +105,50 @@ async function appendToGoogleSheet(data) {
 // Endpoint to create a claim and append data to Google Sheets
 module.exports.handler = async (event, context) => {
     try {
-        const { policyholder_name, full_address, project_manager_name } = JSON.parse(event.body);
+        // Retrieve the data from the request body
+        const { policyholder_name, full_address, project_manager_name, pin } = JSON.parse(event.body);
 
+        // Log the received data
+        console.log("Received data:", { policyholder_name, full_address, project_manager_name, pin });
+
+        // Verify PIN
+        const correctPin = process.env.CLAIM_PIN; // Ensure the PIN is stored securely in environment variable
+
+        console.log("Expected PIN:", correctPin);
+        console.log("Received PIN:", pin);
+
+        if (pin !== correctPin) {
+            console.log("PIN mismatch. Returning 403.");
+            return {
+                statusCode: 403,
+                body: JSON.stringify({ error: "Invalid PIN" }),
+            };
+        }
+
+        // Check for missing claim data
         if (!policyholder_name || !full_address || !project_manager_name) {
+            console.log("Missing required claim data.");
             return {
                 statusCode: 400,
                 body: JSON.stringify({ error: "Missing required claim data." }),
             };
         }
 
+        // Get the next contractor identifier (PO number)
         const nextSequence = await getNextContractorIdentifier();
         console.log("Next PO Number:", nextSequence);
 
         const newClaim = {
-            organization_id: "d622f922-8ce2-4ded-a44b-37fa3dac1aa4", 
-            brand_id: 283549, 
+            organization_id: "d622f922-8ce2-4ded-a44b-37fa3dac1aa4",
+            brand_id: 283549,
             contractor_identifier: nextSequence,
             policyholder_name: policyholder_name,
             full_address: full_address,
             project_manager_name: project_manager_name,
         };
+
+        // Log the new claim details
+        console.log("New claim details:", newClaim);
 
         const response = await fetch(claimsEndpoint, {
             method: "POST",
@@ -136,10 +156,12 @@ module.exports.handler = async (event, context) => {
             body: JSON.stringify(newClaim),
         });
 
+        // Check if the claim creation was successful
         if (response.ok) {
             const createdClaim = await response.json();
             console.log("New claim created successfully:", createdClaim);
 
+            // Append data to Google Sheets
             const data = [nextSequence, policyholder_name, full_address, project_manager_name];
             await appendToGoogleSheet(data);
 

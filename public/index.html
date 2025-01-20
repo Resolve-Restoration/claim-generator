@@ -42,7 +42,8 @@
       }
 
       /* Input text box styling */
-      input[type="text"] {
+      input[type="text"],
+      input[type="password"] {
         display: block;
         margin: 10px auto;
         padding: 15px;
@@ -56,7 +57,8 @@
       }
 
       /* Input focus effect */
-      input[type="text"]:focus {
+      input[type="text"]:focus,
+      input[type="password"]:focus {
         outline: none;
         border-color: #4caf50;
         box-shadow: 0px 4px 15px rgba(76, 175, 80, 0.3);
@@ -93,6 +95,12 @@
         margin-top: 20px;
         display: none;
       }
+
+      /* Error message styling */
+      #pin-error {
+        color: red;
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -103,25 +111,40 @@
     />
     <h1>Claim Generator</h1>
 
-    <!-- Form with labels for the text boxes -->
-    <label for="field1">Please add the name of the claim:</label>
-    <input type="text" id="field1" placeholder="Enter building name" />
+    <!-- Claim Generator Form -->
+    <div id="claim-form">
+      <label for="field1">Please add the name of the claim:</label>
+      <input type="text" id="field1" placeholder="Enter building name" />
 
-    <label for="field2">Please add its address:</label>
-    <input type="text" id="field2" placeholder="Enter site's address" />
+      <label for="field2">Please add its address:</label>
+      <input type="text" id="field2" placeholder="Enter site's address" />
 
-    <label for="field3">Please add your name:</label>
-    <input type="text" id="field3" placeholder="Enter project manager's name" />
+      <label for="field3">Please add your name:</label>
+      <input
+        type="text"
+        id="field3"
+        placeholder="Enter project manager's name"
+      />
 
-    <!-- Loading message -->
-    <div id="loading">Processing claim...</div>
+      <label for="pin-input">Enter PIN:</label>
+      <input type="password" id="pin-input" placeholder="Enter PIN" required />
 
-    <button id="generate">Generate Claim</button>
+      <!-- Loading message -->
+      <div id="loading">Processing claim...</div>
+
+      <button id="generate">Generate Claim</button>
+
+      <div id="pin-error" style="color: red; display: none">
+        Incorrect PIN, please try again.
+      </div>
+    </div>
 
     <script>
+      // Handle claim form submission
       document
         .getElementById("generate")
         .addEventListener("click", async () => {
+          const enteredPin = document.getElementById("pin-input").value;
           const field1 = document.getElementById("field1").value;
           const field2 = document.getElementById("field2").value;
           const field3 = document.getElementById("field3").value;
@@ -130,6 +153,7 @@
             policyholder_name: field1,
             full_address: field2,
             project_manager_name: field3,
+            pin: enteredPin, // Sending PIN for backend processing
           };
 
           document.getElementById("loading").style.display = "block";
@@ -153,6 +177,7 @@
               document.getElementById("field1").value = "";
               document.getElementById("field2").value = "";
               document.getElementById("field3").value = "";
+              document.getElementById("pin-input").value = "";
             } else {
               alert("Error creating claim! " + responseData.error);
             }
