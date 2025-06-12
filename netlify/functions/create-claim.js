@@ -3,7 +3,7 @@ require('dotenv').config();
 
 // SPREADSHEET and SHEET configuration
 const SPREADSHEET_ID = "1BtR0inNvEgDdhorb6sgSx6s3my3MO4RG5QysY28mhGQ";
-const SHEET_NAME = "Sheet1";
+const SHEET_NAME = "Claims";
 
 // Decode base64-encoded credentials
 const decodeBase64 = (encodedString) => {
